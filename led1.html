@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>WebSocket Test</title>
+    <script>
+
+  window.addEventListener("load", init, false);
+
+
+
+<script src="socket.io.js"></script>
+<script>
+  var socket = io('http://172.24.1.1:8080');
+  socket.on('news', function (data) {
+    console.log(data);
+    socket.emit('my other event', { my: '50' });
+  });
+
+
+
+
+var s = document.getElementById("myRange");
+  s.addEventListener("change", function() { //add event listener for when red slider changes
+    rgb.red = this.value; //update the RED color according to the slider
+    colorShow.style.backgroundColor = rgb.toRgbString(); //update the "Current color"
+    socket.emit("rgbLed", rgb); //send the updated color to RGB LED via WebSocket
+  });
+
+
+  var c = document.getElementById("canvas1");
+  var ctx = c.getContext("2d");
+  ctx.fillStyle = "#FF0000";  
+  ctx.fillRect(20, 20, 150, 100);
+
+
+
+    </script>
+  </head>
+  <body>
+  <h2>WebSocket Test</h2>
+  <div id="output"></div>
+
+
+  <div id="slidecontainer">
+    <input type="range" min="1" max="255" value="100" class="slider" id="myRange">
+  </div>
+  <canvas id="canvas1" width="50" height="50"></canvas>
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

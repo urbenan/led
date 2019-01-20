@@ -1,0 +1,148 @@
+<!DOCTYPE html>  <meta charset="utf-8" />
+  <title>WebSocket Test</title>
+  <script language="javascript" type="text/javascript">
+  var wsUri = "ws://172.24.1.1:8000";
+  var output;
+  var senderID, receiverID, parameterName, parameterValue;
+  var clientID=0;
+
+  var numberActiveClients=0;   // Anzahl Aktive Clients
+
+  function init() {
+    output = document.getElementById("output");
+    testWebSocket();
+  }
+
+  function testWebSocket() {
+    websocket = new WebSocket(wsUri);
+    websocket.onopen =    function(evt) { onOpen(evt) };
+    // websocket.onclose = function(evt) { onClose(evt) };
+    websocket.onmessage = function(evt) { onMessage(evt) };
+    websocket.onerror = function(evt) { onError(evt) };
+  }
+
+  function onOpen(evt) {
+    writeToScreen("Websocket gestartet");
+  }
+
+  function onClose(evt) {
+    writeToScreen("Websocket beendet");
+  }
+
+  function onMessage(evt) {
+     messageArray=(evt.data).split(";");
+     senderID=parseInt(messageArray[0]);
+     receiverID=parseInt(messageArray[1]);
+     parameterName=messageArray[2];
+     parameterValue=messageArray[3];
+
+     if(parameterName=="setClientID" ) {
+       clientID=parseInt(parameterValue);
+       writeToScreen("setID="+clientID);
+       message=clientID+";all;confirmClientID;"+clientID;
+       websocket.send(message);
+     }
+
+     // writeToScreen('<span style="color: blue;">RESPONSE: ' + senderID +';'+receiverID+'; '+parameterName +';'+parameterValue+'</span>');
+     document.getElementById(parameterName+"_"+senderID).firstChild.data=parameterValue;
+
+  }
+
+  function onError(evt) {
+    writeToScreen('<span style="color: red;">ERROR:</span> ' + evt.data);
+  }
+
+  function doSend(message) {
+    // message=clientID+";all;confirmClientID;"+clientID;
+    // writeToScreen("SENT: " + message);
+    // websocket.send(message);
+  }
+
+  function writeToScreen(message) {
+    var pre = document.createElement("p");
+    pre.style.wordWrap = "break-word";
+    pre.innerHTML = message;
+    output.appendChild(pre);
+  }
+
+  function writeHTML() {
+    var clientHTML = "";
+
+  }
+
+  window.addEventListener("load", init, false);
+
+ // ------------------ Sensoren vom Gerät auslesen und verschicken -----------------------
+
+ var ax;
+ var ay;
+ var zx;
+ var rot_dx;
+ var rot_dy;
+ var rot_dz;
+
+ // window.addEventListener("load", start, false);
+ // setInterval("sendSensorData()",5000);
+ // setInterval("gps()",10);
+
+ window.ondevicemotion = function(event) {
+   ax=event.accelerationIncludingGravity.x;
+   ay=event.accelerationIncludingGravity.y;
+   az=event.accelerationIncludingGravity.z;
+   websocket.send(clientID+";all;ax;"+Math.round(ax*100)/100);
+   websocket.send(clientID+";all;ay;"+Math.round(ay*100)/100);
+   websocket.send(clientID+";all;az;"+Math.round(az*100)/100);
+ }
+
+ window.ondeviceorientation = function(event) {
+   rot_dx=event.alpha;
+   rot_dy=event.beta;
+   rot_dz=event.gamma;
+   websocket.send(clientID+";all;rot_dx;"+Math.round(rot_dx*100)/100);
+   websocket.send(clientID+";all;rot_dy;"+Math.round(rot_dy*100)/100);
+   websocket.send(clientID+";all;rot_dz;"+Math.round(rot_dz*100)/100);
+ }
+
+ function sendSensorData() {
+   // Beschleunigung
+   websocket.send(clientID+";all;ax;"+Math.round(ax*100)/100);
+   websocket.send(clientID+";all;ay;"+Math.round(ay*100)/100);
+   websocket.send(clientID+";all;az;"+Math.round(az*100)/100);
+   // Orientierung
+   websocket.send(clientID+";all;rot_dx;"+Math.round(rot_dx*100)/100);
+   websocket.send(clientID+";all;rot_dy;"+Math.round(rot_dy*100)/100);
+   websocket.send(clientID+";all;rot_dz;"+Math.round(rot_dz*100)/100);
+ }
+
+
+  </script>
+  <h2>WebSocket Test</h2>
+  <div id="output"></div>
+
+  <body>
+    Andreas Urben HTML Sensor Log<br/>
+    Programmiert 27.03.2013<br/>
+    </br>
+    <div id="Beschleunigung_1">
+      <div id="Beschleunigung X" >Beschleunigung X</div><div id="ax_1" >0</div>
+      <div id="Beschleunigung Y" >Beschleunigung Y</div><div id="ay_1" >0</div>
+      <div id="Beschleunigung Z" >Beschleunigung Z</div><div id="az_1" >0</div>
+    </div>
+    <div id="Rotation_1">
+      <div id="Rotation X" >Rotation X</div><div id="rot_dx_1" >0</div>
+      <div id="Rotation Y" >Rotation Y</div><div id="rot_dy_1" >0</div>
+      <div id="Rotation Z" >Rotation Z</div><div id="rot_dz_1" >0</div>
+    </div>
+    </br>
+    <div id="Beschleunigung_2">
+      <div id="Beschleunigung X" >Beschleunigung X</div><div id="ax_2" >0</div>
+      <div id="Beschleunigung Y" >Beschleunigung Y</div><div id="ay_2" >0</div>
+      <div id="Beschleunigung Z" >Beschleunigung Z</div><div id="az_2" >0</div>
+    </div>
+    <div id="Rotation_2">
+      <div id="Rotation X" >Rotation X</div><div id="rot_dx_2" >0</div>
+      <div id="Rotation Y" >Rotation Y</div><div id="rot_dy_2" >0</div>
+      <div id="Rotation Z" >Rotation Z</div><div id="rot_dz_2" >0</div>
+    </div>
+
+</html>

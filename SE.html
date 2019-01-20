@@ -1,0 +1,77 @@
+<!DOCTYPE html>  <meta charset="utf-8" />
+  <title>WebSocket Test</title>
+  <script language="javascript" type="text/javascript">
+  var wsUri = "ws://192.168.1.103:8000";
+  var output;
+  var senderID, receiverID, parameterName, parameterValue;
+  var clientID=0;
+
+  var numberActiveClients=0;   // Anzahl Aktive Clients
+
+  function init() {
+    output = document.getElementById("output");
+    testWebSocket();
+  }
+
+  function testWebSocket() {
+    websocket = new WebSocket(wsUri);
+    websocket.onopen =    function(evt) { onOpen(evt) };
+    // websocket.onclose = function(evt) { onClose(evt) };
+    websocket.onmessage = function(evt) { onMessage(evt) };
+    websocket.onerror = function(evt) { onError(evt) };
+  }
+
+  function onOpen(evt) {
+    writeToScreen("Websocket gestartet");
+  }
+
+  function onClose(evt) {
+    writeToScreen("Websocket beendet");
+  }
+
+  function onMessage(evt) {
+     messageArray=(evt.data).split(";");
+     senderID=parseInt(messageArray[0]);
+     receiverID=parseInt(messageArray[1]);
+     parameterName=messageArray[2];
+     parameterValue=messageArray[3];
+
+     if(parameterName=="setClientID" ) {
+       clientID=parseInt(parameterValue);
+       writeToScreen("setID="+clientID);
+       message=clientID+";all;confirmClientID;"+clientID;
+       websocket.send(message);
+     }
+
+
+
+     writeToScreen('<span style="color: blue;">RESPONSE: ' + senderID +';'+receiverID+'; '+parameterName +';'+parameterValue+'</span>');
+     }
+
+  function onError(evt) {
+    writeToScreen('<span style="color: red;">ERROR:</span> ' + evt.data);
+  }
+
+  function doSend(message) {
+    // message=clientID+";all;confirmClientID;"+clientID;
+    // writeToScreen("SENT: " + message);
+    // websocket.send(message);
+  }
+
+  function writeToScreen(message) {
+    var pre = document.createElement("p");
+    pre.style.wordWrap = "break-word";
+    pre.innerHTML = message;
+    output.appendChild(pre);
+  }
+
+  function writeHTML() {
+    var clientHTML = "";
+
+  }
+
+  window.addEventListener("load", init, false);
+  </script>
+  <h2>WebSocket Test</h2>
+  <div id="output"></div>
+</html>
